@@ -1,1 +1,19 @@
 test.db
+
+### IntelliJ IDEA ###
+.idea
+*.iws
+*.iml
+*.ipr
+
+### VS Code ###
+.vscode/
+
+## GITCONFIG ##
+.gitconfig
+
+## ENVIRONMENT FILE ##
+.env
+
+# GoLand
+.idea/

@@ -4,8 +4,10 @@ import "gorm.io/gorm"
 
 type Post struct {
 	gorm.Model
-	Title string `json:"title"`
+	Title string `json:"title" gorm:"not null"`
 	Body string `json:"body"`
+	AuthorID *uint `json:"author_id" gorm:"not null"`
+	Author *User `json:"author"`
 }
 
 type PostDTO struct {

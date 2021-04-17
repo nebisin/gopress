@@ -2,28 +2,38 @@ package controllers
 
 import (
 	"encoding/json"
+	"errors"
 	"github.com/gorilla/mux"
 	"github.com/nebisin/gopress/models"
 	"github.com/nebisin/gopress/repository"
 	"github.com/nebisin/gopress/utils"
+	"github.com/nebisin/gopress/utils/auth"
 	"io/ioutil"
 	"net/http"
 	"strconv"
 )
 
 func (handler *Handler) CreatePost(w http.ResponseWriter, r *http.Request)  {
-	var post models.Post
-	if err := json.NewDecoder(r.Body).Decode(&post); err != nil {
+	var postDTO models.PostDTO
+	if err := json.NewDecoder(r.Body).Decode(&postDTO); err != nil {
 		utils.ERROR(w, http.StatusInternalServerError, err)
 		return
 	}
+	post := models.DTOToPost(postDTO)
 
 	// TODO: Some validations
-	// TODO: Authentication
 
-	db := repository.NewRepository(handler.DB)
+	uid, err := auth.ExtractTokenID(r)
+	if err != nil {
+		utils.ERROR(w, http.StatusUnauthorized, errors.New("unauthorized"))
+		return
+	}
 
-	if err := db.SavePost(&post); err != nil {
+	post.AuthorID = &uid
+
+	db := repository.NewPostRepository(handler.DB)
+
+	if err := db.Save(&post); err != nil {
 		utils.ERROR(w, http.StatusInternalServerError, err)
 		return
 	}
@@ -41,9 +51,9 @@ func (handler *Handler) GetPostById(w http.ResponseWriter, r *http.Request)  {
 		return
 	}
 
-	db := repository.NewRepository(handler.DB)
+	db := repository.NewPostRepository(handler.DB)
 
-	post, err := db.FindPostById(uint(i))
+	post, err := db.FindById(uint(i))
 	if err != nil {
 		utils.ERROR(w, http.StatusInternalServerError, err)
 		return
@@ -61,12 +71,12 @@ func (handler Handler) UpdatePost(w http.ResponseWriter, r *http.Request)  {
 		return
 	}
 
-	db := repository.NewRepository(handler.DB)
+	db := repository.NewPostRepository(handler.DB)
 
 	// TODO: Some validations
 	// TODO: Authentication
 
-	post, err := db.FindPostById(uint(pid))
+	post, err := db.FindById(uint(pid))
 	if err != nil {
 		utils.ERROR(w, http.StatusInternalServerError, err)
 		return
@@ -88,7 +98,7 @@ func (handler Handler) UpdatePost(w http.ResponseWriter, r *http.Request)  {
 		return
 	}
 
-	if err = db.UpdatePostById(&post, models.DTOToPost(postUpdate)); err != nil {
+	if err = db.UpdateById(&post, models.DTOToPost(postUpdate)); err != nil {
 		utils.ERROR(w, http.StatusInternalServerError, err)
 		return
 	}
@@ -106,11 +116,11 @@ func (handler *Handler) DeletePost(w http.ResponseWriter, r *http.Request)  {
 		return
 	}
 
-	db := repository.NewRepository(handler.DB)
+	db := repository.NewPostRepository(handler.DB)
 
 	// TODO: Authentication
 
-	_, err = db.FindPostById(uint(i))
+	_, err = db.FindById(uint(i))
 	if err != nil {
 		utils.ERROR(w, http.StatusInternalServerError, err)
 		return
@@ -118,7 +128,7 @@ func (handler *Handler) DeletePost(w http.ResponseWriter, r *http.Request)  {
 
 	// TODO: Check if the user is authorized
 
-	if 	err := db.DeletePostById(uint(i)); err != nil{
+	if 	err := db.DeleteById(uint(i)); err != nil{
 		utils.ERROR(w, http.StatusInternalServerError, err)
 		return
 	}
@@ -138,9 +148,9 @@ func (handler Handler) GetPosts(w http.ResponseWriter, r *http.Request)  {
 		}
 	}
 
-	db := repository.NewRepository(handler.DB)
+	db := repository.NewPostRepository(handler.DB)
 
-	posts, err := db.FindPosts(limit)
+	posts, err := db.FindMany(limit)
 	if err != nil {
 		utils.ERROR(w, http.StatusInternalServerError, err)
 		return

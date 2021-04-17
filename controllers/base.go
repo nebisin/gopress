@@ -25,7 +25,7 @@ func (handler *Handler) Initialize() {
 	}
 
 	// Migrate the schema
-	handler.DB.AutoMigrate(&models.Post{})
+	handler.DB.AutoMigrate(&models.Post{}, &models.User{})
 
 	handler.Router = mux.NewRouter()
 
