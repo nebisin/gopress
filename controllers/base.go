@@ -35,7 +35,9 @@ func (handler *Handler) Initialize() {
 	}
 
 	// Migrate the schema
-	handler.DB.AutoMigrate(&models.Post{}, &models.User{})
+	if err := handler.DB.AutoMigrate(&models.Post{}, &models.User{}); err != nil {
+		log.Fatalf("Error auto migration: %v", err)
+	}
 
 	handler.Router = mux.NewRouter()
 
