@@ -74,7 +74,6 @@ func (handler Handler) UpdatePost(w http.ResponseWriter, r *http.Request)  {
 	db := repository.NewPostRepository(handler.DB)
 
 	// TODO: Some validations
-	// TODO: Authentication
 
 	post, err := db.FindById(uint(pid))
 	if err != nil {
@@ -118,8 +117,6 @@ func (handler *Handler) DeletePost(w http.ResponseWriter, r *http.Request)  {
 
 	db := repository.NewPostRepository(handler.DB)
 
-	// TODO: Authentication
-
 	_, err = db.FindById(uint(i))
 	if err != nil {
 		utils.ERROR(w, http.StatusInternalServerError, err)
@@ -137,7 +134,9 @@ func (handler *Handler) DeletePost(w http.ResponseWriter, r *http.Request)  {
 }
 
 func (handler Handler) GetPosts(w http.ResponseWriter, r *http.Request)  {
-	limitStr := r.FormValue("limit")
+	keys := r.URL.Query()
+	limitStr := keys.Get("limit")
+
 	var limit int
 	var err error
 	if len(limitStr) != 0 {
