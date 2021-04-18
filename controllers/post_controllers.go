@@ -21,7 +21,14 @@ func (handler *Handler) CreatePost(w http.ResponseWriter, r *http.Request)  {
 	}
 	post := models.DTOToPost(postDTO)
 
-	// TODO: Some validations
+	if len(post.Title) < 3 {
+		utils.ERROR(w, http.StatusUnprocessableEntity, errors.New("title must be at least 3 characters long"))
+		return
+	}
+	if len(post.Body) < 3 {
+		utils.ERROR(w, http.StatusUnprocessableEntity, errors.New("content must be at least 3 characters long"))
+		return
+	}
 
 	uid, err := auth.ExtractTokenID(r)
 	if err != nil {
@@ -73,8 +80,6 @@ func (handler Handler) UpdatePost(w http.ResponseWriter, r *http.Request)  {
 
 	db := repository.NewPostRepository(handler.DB)
 
-	// TODO: Some validations
-
 	post, err := db.FindById(uint(pid))
 	if err != nil {
 		utils.ERROR(w, http.StatusInternalServerError, err)
@@ -94,6 +99,15 @@ func (handler Handler) UpdatePost(w http.ResponseWriter, r *http.Request)  {
 
 	if err = json.Unmarshal(body, &postUpdate); err != nil {
 		utils.ERROR(w, http.StatusUnprocessableEntity, err)
+		return
+	}
+
+	if len(postUpdate.Title) < 3 && postUpdate.Title != "" {
+		utils.ERROR(w, http.StatusUnprocessableEntity, errors.New("title must be at least 3 characters long"))
+		return
+	}
+	if len(postUpdate.Body) < 3 && postUpdate.Body != "" {
+		utils.ERROR(w, http.StatusUnprocessableEntity, errors.New("content must be at least 3 characters long"))
 		return
 	}
 
