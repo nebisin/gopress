@@ -1,10 +1,8 @@
 package auth
 
 import (
-	"encoding/json"
 	"fmt"
 	"github.com/dgrijalva/jwt-go"
-	"log"
 	"net/http"
 	"os"
 	"strconv"
@@ -25,7 +23,7 @@ func CreateToken(userId uint) (string, error) {
 
 func TokenValid(r *http.Request) error {
 	tokenString := ExtractToken(r)
-	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
+	_, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
 
 		_, ok := token.Method.(*jwt.SigningMethodHMAC)
 
@@ -37,10 +35,6 @@ func TokenValid(r *http.Request) error {
 
 	if err != nil {
 		return err
-	}
-
-	if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
-		Pretty(claims)
 	}
 
 	return nil
@@ -75,15 +69,4 @@ func ExtractTokenID(r *http.Request) (uint, error) {
 		return uint(uid), nil
 	}
 	return 0, nil
-}
-
-//Pretty display the claims nicely in the terminal
-func Pretty(data interface{}) {
-	b, err := json.MarshalIndent(data, "", " ")
-	if err != nil {
-		log.Println(err)
-		return
-	}
-
-	fmt.Println(string(b))
 }

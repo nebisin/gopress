@@ -86,7 +86,16 @@ func (handler Handler) UpdatePost(w http.ResponseWriter, r *http.Request)  {
 		return
 	}
 
-	// TODO: Check if the user is authorized
+	uid, err := auth.ExtractTokenID(r)
+	if err != nil {
+		utils.ERROR(w, http.StatusUnauthorized, errors.New("unauthorized"))
+		return
+	}
+
+	if post.Author.ID != uint(uid) {
+		utils.ERROR(w, http.StatusUnauthorized, errors.New("unauthorized"))
+		return
+	}
 
 	body, err := ioutil.ReadAll(r.Body)
 	if err != nil {
@@ -131,13 +140,22 @@ func (handler *Handler) DeletePost(w http.ResponseWriter, r *http.Request)  {
 
 	db := repository.NewPostRepository(handler.DB)
 
-	_, err = db.FindById(uint(i))
+	post, err := db.FindById(uint(i))
 	if err != nil {
 		utils.ERROR(w, http.StatusInternalServerError, err)
 		return
 	}
 
-	// TODO: Check if the user is authorized
+	uid, err := auth.ExtractTokenID(r)
+	if err != nil {
+		utils.ERROR(w, http.StatusUnauthorized, errors.New("unauthorized"))
+		return
+	}
+
+	if post.Author.ID != uint(uid) {
+		utils.ERROR(w, http.StatusUnauthorized, errors.New("unauthorized"))
+		return
+	}
 
 	if 	err := db.DeleteById(uint(i)); err != nil{
 		utils.ERROR(w, http.StatusInternalServerError, err)
