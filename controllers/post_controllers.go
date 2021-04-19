@@ -23,12 +23,8 @@ func (handler *Handler) handlePostCreate(w http.ResponseWriter, r *http.Request)
 	}
 	post := models.DTOToPost(postDTO)
 
-	if len(post.Title) < 3 {
-		responses.ERROR(w, http.StatusUnprocessableEntity, errors.New("title must be at least 3 characters long"))
-		return
-	}
-	if len(post.Body) < 3 {
-		responses.ERROR(w, http.StatusUnprocessableEntity, errors.New("content must be at least 3 characters long"))
+	if err := post.Validate("create"); err != nil {
+		responses.ERROR(w, http.StatusBadRequest, err)
 		return
 	}
 
@@ -115,7 +111,6 @@ func (handler Handler) handlePostUpdate(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	// Start processing the request data
 	var postUpdate models.PostDTO
 
 	if err = json.Unmarshal(body, &postUpdate); err != nil {
@@ -123,16 +118,13 @@ func (handler Handler) handlePostUpdate(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	if len(postUpdate.Title) < 3 && postUpdate.Title != "" {
-		responses.ERROR(w, http.StatusUnprocessableEntity, errors.New("title must be at least 3 characters long"))
-		return
-	}
-	if len(postUpdate.Body) < 3 && postUpdate.Body != "" {
-		responses.ERROR(w, http.StatusUnprocessableEntity, errors.New("content must be at least 3 characters long"))
-		return
+	newPost := models.DTOToPost(postUpdate)
+
+	if err := newPost.Validate("update"); err != nil {
+		responses.ERROR(w, http.StatusBadRequest, err)
 	}
 
-	if err = db.UpdateById(&post, models.DTOToPost(postUpdate)); err != nil {
+	if err = db.UpdateById(&post, newPost); err != nil {
 		responses.ERROR(w, http.StatusInternalServerError, err)
 		return
 	}

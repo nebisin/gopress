@@ -1,9 +1,12 @@
 package models
 
 import (
+	"errors"
+	"github.com/go-playground/validator"
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
-	)
+	"strings"
+)
 
 type User struct {
 	gorm.Model
@@ -35,10 +38,20 @@ func (u *User) BeforeSave(tx *gorm.DB) error {
 
 	return nil
 }
-/*
-func (u *User) AfterFind(tx *gorm.DB) (err error) {
-	u.Password = nil
 
-	return
+func (u User) Validate(action string) error {
+	validate := validator.New()
+
+	switch strings.ToLower(action) {
+	case "register":
+		if err := validate.Var(u.Email, "required,email"); err != nil {
+			return errors.New("you have to provide a valid email")
+		}
+
+		if len(u.Password) < 8 {
+			return errors.New("password must be at least 8 characters")
+		}
+	}
+
+	return nil
 }
-*/

@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/go-playground/validator"
 	"github.com/nebisin/gopress/models"
 	"github.com/nebisin/gopress/repository"
 	"github.com/nebisin/gopress/utils/auth"
@@ -14,8 +13,6 @@ import (
 	"strings"
 )
 
-var validate = validator.New()
-
 func (handler *Handler) handleAuthRegister(w http.ResponseWriter, r *http.Request)  {
 	var userPayload models.UserPayload
 	if err := json.NewDecoder(r.Body).Decode(&userPayload); err != nil {
@@ -23,17 +20,12 @@ func (handler *Handler) handleAuthRegister(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	if err := validate.Var(userPayload.Email, "required,email"); err != nil {
-		responses.ERROR(w, http.StatusBadRequest, errors.New("you have to provide a valid email"))
-		return
-	}
-
-	if len(userPayload.Password) < 8 {
-		responses.ERROR(w, http.StatusBadRequest, errors.New("password must be at least 8 characters"))
-		return
-	}
-
 	user := models.PayloadToUser(userPayload)
+
+	if err := user.Validate("register"); err != nil {
+		responses.ERROR(w, http.StatusBadRequest, err)
+		return
+	}
 
 	db := repository.NewUserRepository(handler.DB)
 
