@@ -21,6 +21,9 @@ func (handler *Handler) initializeRoutes() {
 
 	handler.Router.HandleFunc("/register", handler.handleAuthRegister).Methods("POST")
 	handler.Router.HandleFunc("/login", handler.handleAuthLogin).Methods("POST")
+	handler.Router.HandleFunc("/me/posts", handler.HandleMyPosts).Methods("GET")
 
 	handler.Router.HandleFunc("/users/{id}", handler.handleUserGet).Methods("GET")
+	handler.Router.HandleFunc("/users/{id}/posts", handler.HandleUserPostsGet).Methods("GET")
+
 }

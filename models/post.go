@@ -12,17 +12,20 @@ type Post struct {
 	Body string `json:"body"`
 	AuthorID *uint `json:"authorId" gorm:"not null"`
 	Author *User `json:"author"`
+	IsPublished bool `json:"isPublished" gorm:"default:false"`
 }
 
 type PostDTO struct {
 	Title string `json:"title"`
 	Body string `json:"body"`
+	IsPublished bool `json:"isPublished"`
 }
 
 func DTOToPost(dto PostDTO) Post {
 	return Post{
 		Title: dto.Title,
 		Body: dto.Body,
+		IsPublished: dto.IsPublished,
 	}
 }
 

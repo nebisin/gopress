@@ -78,3 +78,22 @@ func (handler Handler) handleAuthLogin(w http.ResponseWriter, r *http.Request) {
 
 	responses.JSON(w, http.StatusCreated, token)
 }
+
+// This method gets users own posts
+// including both published and unpublished ones.
+func (handler Handler) HandleMyPosts(w http.ResponseWriter, r *http.Request) {
+	uid, err := auth.ExtractTokenID(r)
+	if err != nil {
+		responses.ERROR(w, http.StatusUnauthorized, errors.New("unauthorized"))
+		return
+	}
+
+	db := repository.NewPostRepository(handler.DB)
+	posts, err := db.FindMyPosts(uid)
+	if err != nil {
+		responses.ERROR(w, http.StatusInternalServerError, errors.New("something went wrong"))
+		return
+	}
+
+	responses.JSON(w, http.StatusOK, posts)
+}
