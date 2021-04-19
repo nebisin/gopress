@@ -9,8 +9,8 @@ type User struct {
 	gorm.Model
 	Email string `json:"email" gorm:"not null;unique"`
 	Password string `json:"-" gorm:"not null"`
-	IsActive bool `json:"is_active" gorm:"default:true"`
-	IsLocked bool `json:"is_locked" gorm:"default:false"`
+	IsActive bool `json:"isActive" gorm:"default:true"`
+	IsLocked bool `json:"isLocked" gorm:"default:false"`
 }
 
 type UserPayload struct {

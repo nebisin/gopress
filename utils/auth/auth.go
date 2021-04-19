@@ -22,7 +22,7 @@ func CreateToken(userId uint) (string, error) {
 }
 
 func TokenValid(r *http.Request) error {
-	tokenString := ExtractToken(r)
+	tokenString := extractToken(r)
 	_, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
 
 		_, ok := token.Method.(*jwt.SigningMethodHMAC)
@@ -40,7 +40,7 @@ func TokenValid(r *http.Request) error {
 	return nil
 }
 
-func ExtractToken(r *http.Request) string {
+func extractToken(r *http.Request) string {
 	bearerToken := r.Header.Get("Authorization")
 	if len(strings.Split(bearerToken, " ")) == 2 {
 		return strings.Split(bearerToken, " ")[1]
@@ -50,7 +50,7 @@ func ExtractToken(r *http.Request) string {
 
 func ExtractTokenID(r *http.Request) (uint, error) {
 
-	tokenString := ExtractToken(r)
+	tokenString := extractToken(r)
 	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])

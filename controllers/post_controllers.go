@@ -13,10 +13,10 @@ import (
 	"strconv"
 )
 
-func (handler *Handler) CreatePost(w http.ResponseWriter, r *http.Request)  {
+func (handler *Handler) handlePostCreate(w http.ResponseWriter, r *http.Request)  {
 	var postDTO models.PostDTO
 	if err := json.NewDecoder(r.Body).Decode(&postDTO); err != nil {
-		responses.ERROR(w, http.StatusInternalServerError, err)
+		responses.ERROR(w, http.StatusUnprocessableEntity, err)
 		return
 	}
 	post := models.DTOToPost(postDTO)
@@ -48,7 +48,7 @@ func (handler *Handler) CreatePost(w http.ResponseWriter, r *http.Request)  {
 	responses.JSON(w, http.StatusCreated, post)
 }
 
-func (handler *Handler) GetPostById(w http.ResponseWriter, r *http.Request)  {
+func (handler *Handler) handlePostGet(w http.ResponseWriter, r *http.Request)  {
 	vars := mux.Vars(r)
 	id := vars["id"]
 
@@ -69,7 +69,7 @@ func (handler *Handler) GetPostById(w http.ResponseWriter, r *http.Request)  {
 	responses.JSON(w, http.StatusOK, post)
 }
 
-func (handler Handler) UpdatePost(w http.ResponseWriter, r *http.Request)  {
+func (handler Handler) handlePostUpdate(w http.ResponseWriter, r *http.Request)  {
 	vars := mux.Vars(r)
 
 	pid, err := strconv.ParseUint(vars["id"], 10, 64)
@@ -128,7 +128,7 @@ func (handler Handler) UpdatePost(w http.ResponseWriter, r *http.Request)  {
 	responses.JSON(w, http.StatusCreated, post)
 }
 
-func (handler *Handler) DeletePost(w http.ResponseWriter, r *http.Request)  {
+func (handler *Handler) handlePostDelete(w http.ResponseWriter, r *http.Request)  {
 	vars := mux.Vars(r)
 	id := vars["id"]
 
@@ -165,7 +165,7 @@ func (handler *Handler) DeletePost(w http.ResponseWriter, r *http.Request)  {
 	responses.JSON(w, http.StatusNoContent, "")
 }
 
-func (handler Handler) GetPosts(w http.ResponseWriter, r *http.Request)  {
+func (handler Handler) handlePostGetMany(w http.ResponseWriter, r *http.Request)  {
 	keys := r.URL.Query()
 	limitStr := keys.Get("limit")
 

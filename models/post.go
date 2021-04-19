@@ -6,7 +6,7 @@ type Post struct {
 	gorm.Model
 	Title string `json:"title" gorm:"not null"`
 	Body string `json:"body"`
-	AuthorID *uint `json:"author_id" gorm:"not null"`
+	AuthorID *uint `json:"authorId" gorm:"not null"`
 	Author *User `json:"author"`
 }
 

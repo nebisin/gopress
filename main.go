@@ -6,7 +6,7 @@ import (
 
 var handler = controllers.Handler{}
 
-func  main()  {
+func main() {
 	handler.Initialize()
 
 	handler.Run(":8080")

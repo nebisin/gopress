@@ -2,8 +2,8 @@ package middlewares
 
 import (
 	"errors"
-	"github.com/nebisin/gopress/utils"
 	"github.com/nebisin/gopress/utils/auth"
+	"github.com/nebisin/gopress/utils/responses"
 	"net/http"
 )
 
@@ -18,7 +18,7 @@ func SetMiddlewareAuthentication(next http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		err := auth.TokenValid(r)
 		if err != nil {
-			utils.ERROR(w, http.StatusUnauthorized, errors.New("unauthorized"))
+			responses.ERROR(w, http.StatusUnauthorized, errors.New("unauthorized"))
 			return
 		}
 		next(w, r)
