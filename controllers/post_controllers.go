@@ -3,11 +3,13 @@ package controllers
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"github.com/gorilla/mux"
 	"github.com/nebisin/gopress/models"
 	"github.com/nebisin/gopress/repository"
 	"github.com/nebisin/gopress/utils/auth"
 	"github.com/nebisin/gopress/utils/responses"
+	"gorm.io/gorm"
 	"io/ioutil"
 	"net/http"
 	"strconv"
@@ -62,7 +64,12 @@ func (handler *Handler) handlePostGet(w http.ResponseWriter, r *http.Request)  {
 
 	post, err := db.FindById(uint(i))
 	if err != nil {
-		responses.ERROR(w, http.StatusInternalServerError, err)
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			responses.ERROR(w, http.StatusNotFound, errors.New("the post with id " + id + " could not found"))
+		} else {
+			responses.ERROR(w, http.StatusInternalServerError, errors.New("something went wrong"))
+			fmt.Println(err)
+		}
 		return
 	}
 
@@ -71,6 +78,12 @@ func (handler *Handler) handlePostGet(w http.ResponseWriter, r *http.Request)  {
 
 func (handler Handler) handlePostUpdate(w http.ResponseWriter, r *http.Request)  {
 	vars := mux.Vars(r)
+
+	uid, err := auth.ExtractTokenID(r)
+	if err != nil {
+		responses.ERROR(w, http.StatusUnauthorized, errors.New("unauthorized"))
+		return
+	}
 
 	pid, err := strconv.ParseUint(vars["id"], 10, 64)
 	if err != nil {
@@ -82,18 +95,17 @@ func (handler Handler) handlePostUpdate(w http.ResponseWriter, r *http.Request) 
 
 	post, err := db.FindById(uint(pid))
 	if err != nil {
-		responses.ERROR(w, http.StatusInternalServerError, err)
-		return
-	}
-
-	uid, err := auth.ExtractTokenID(r)
-	if err != nil {
-		responses.ERROR(w, http.StatusUnauthorized, errors.New("unauthorized"))
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			responses.ERROR(w, http.StatusNotFound, errors.New("the post with id " + vars["id"] + " could not found"))
+		} else {
+			responses.ERROR(w, http.StatusInternalServerError, errors.New("something went wrong"))
+			fmt.Println(err)
+		}
 		return
 	}
 
 	if post.Author.ID != uint(uid) {
-		responses.ERROR(w, http.StatusUnauthorized, errors.New("unauthorized"))
+		responses.ERROR(w, http.StatusUnauthorized, errors.New("you can not update the post who belongs to someone else"))
 		return
 	}
 
@@ -134,7 +146,7 @@ func (handler *Handler) handlePostDelete(w http.ResponseWriter, r *http.Request)
 
 	i, err := strconv.ParseUint(id, 10, 64)
 	if err != nil {
-		responses.ERROR(w, http.StatusInternalServerError, err)
+		responses.ERROR(w, http.StatusUnprocessableEntity, err)
 		return
 	}
 
@@ -142,7 +154,7 @@ func (handler *Handler) handlePostDelete(w http.ResponseWriter, r *http.Request)
 
 	post, err := db.FindById(uint(i))
 	if err != nil {
-		responses.ERROR(w, http.StatusInternalServerError, err)
+		responses.ERROR(w, http.StatusNotFound, err)
 		return
 	}
 

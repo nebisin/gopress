@@ -22,7 +22,7 @@ func (handler Handler) handleUserGet(w http.ResponseWriter, r *http.Request)  {
 
 	post, err := db.FindById(uint(i))
 	if err != nil {
-		responses.ERROR(w, http.StatusInternalServerError, err)
+		responses.ERROR(w, http.StatusNotFound, err)
 		return
 	}
 
