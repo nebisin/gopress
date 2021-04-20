@@ -25,11 +25,6 @@ func (handler *Handler) handlePostCreate(w http.ResponseWriter, r *http.Request)
 	}
 	post := models.DTOToPost(postDTO)
 
-	if err := post.Validate("create"); err != nil {
-		responses.ERROR(w, http.StatusBadRequest, err)
-		return
-	}
-
 	uid, err := auth.ExtractTokenID(r)
 	if err != nil {
 		responses.ERROR(w, http.StatusUnauthorized, errors.New("unauthorized"))
@@ -147,10 +142,6 @@ func (handler Handler) handlePostUpdate(w http.ResponseWriter, r *http.Request) 
 	}
 
 	newPost := models.DTOToPost(postUpdate)
-
-	if err := newPost.Validate("update"); err != nil {
-		responses.ERROR(w, http.StatusBadRequest, err)
-	}
 
 	if err = db.UpdateById(&post, newPost); err != nil {
 		responses.ERROR(w, http.StatusInternalServerError, err)

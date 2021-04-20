@@ -22,11 +22,6 @@ func (handler *Handler) handleAuthRegister(w http.ResponseWriter, r *http.Reques
 
 	user := models.PayloadToUser(userPayload)
 
-	if err := user.Validate("register"); err != nil {
-		responses.ERROR(w, http.StatusBadRequest, err)
-		return
-	}
-
 	db := repository.NewUserRepository(handler.DB)
 
 	if err := db.Save(&user); err != nil {
@@ -34,8 +29,7 @@ func (handler *Handler) handleAuthRegister(w http.ResponseWriter, r *http.Reques
 			responses.ERROR(w, http.StatusBadRequest, errors.New("email is already taken"))
 			return
 		}
-		responses.ERROR(w, http.StatusInternalServerError, errors.New("something went wrong"))
-		log.Println(err)
+		responses.ERROR(w, http.StatusInternalServerError, err)
 		return
 	}
 

@@ -15,6 +15,10 @@ func NewUserRepository(db *gorm.DB) *userRepository {
 
 // Save method create given user in the database.
 func (r userRepository) Save(p *models.User) error {
+	if err := p.Validate("register"); err != nil {
+		return err
+	}
+
 	if err := r.db.Create(&p).Error; err != nil {
 		return err
 	}

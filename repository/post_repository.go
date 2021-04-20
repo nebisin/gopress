@@ -16,6 +16,10 @@ func NewPostRepository(db *gorm.DB) *postRepository {
 // Save method takes post model and create that post
 // in the database. It returns error if exist any.
 func (r *postRepository) Save(p *models.Post) error {
+	if err := p.Validate("create"); err != nil {
+		return err
+	}
+
 	if err := r.db.Create(&p).Error; err != nil {
 		return err
 	}
@@ -35,6 +39,10 @@ func (r *postRepository) FindById(id uint) (models.Post, error) {
 // UpdateById method update one post
 // It takes old post and new post and return error if any.
 func (r *postRepository) UpdateById(post *models.Post, newPost models.Post) error {
+	if err := newPost.Validate("update"); err != nil {
+		return err
+	}
+
 	if err := r.db.Model(&post).Updates(newPost).Error; err != nil {
 		return err
 	}
