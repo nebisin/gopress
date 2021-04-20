@@ -3,12 +3,12 @@ package controllers
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
 	"github.com/nebisin/gopress/models"
 	"github.com/nebisin/gopress/repository"
 	"github.com/nebisin/gopress/utils/auth"
 	"github.com/nebisin/gopress/utils/responses"
 	"golang.org/x/crypto/bcrypt"
+	"log"
 	"net/http"
 	"strings"
 )
@@ -35,14 +35,14 @@ func (handler *Handler) handleAuthRegister(w http.ResponseWriter, r *http.Reques
 			return
 		}
 		responses.ERROR(w, http.StatusInternalServerError, errors.New("something went wrong"))
-		fmt.Println(err)
+		log.Println(err)
 		return
 	}
 
 	token, err := auth.CreateToken(user.ID)
 	if err != nil {
 		responses.ERROR(w, http.StatusInternalServerError, errors.New("something went wrong"))
-		fmt.Println(err)
+		log.Println(err)
 		return
 	}
 
@@ -79,9 +79,9 @@ func (handler Handler) handleAuthLogin(w http.ResponseWriter, r *http.Request) {
 	responses.JSON(w, http.StatusCreated, token)
 }
 
-// This method gets users own posts
+// handleMyPosts method gets users own posts
 // including both published and unpublished ones.
-func (handler Handler) HandleMyPosts(w http.ResponseWriter, r *http.Request) {
+func (handler Handler) handleMyPosts(w http.ResponseWriter, r *http.Request) {
 	uid, err := auth.ExtractTokenID(r)
 	if err != nil {
 		responses.ERROR(w, http.StatusUnauthorized, errors.New("unauthorized"))
@@ -96,4 +96,22 @@ func (handler Handler) HandleMyPosts(w http.ResponseWriter, r *http.Request) {
 	}
 
 	responses.JSON(w, http.StatusOK, posts)
+}
+
+// handleMe method return the authenticated user info.
+func (handler Handler) handleMe(w http.ResponseWriter, r *http.Request) {
+	uid, err := auth.ExtractTokenID(r)
+	if err != nil {
+		responses.ERROR(w, http.StatusUnauthorized, errors.New("unauthorized"))
+		return
+	}
+
+	db := repository.NewUserRepository(handler.DB)
+	user, err := db.FindById(uid)
+	if err != nil {
+		responses.ERROR(w, http.StatusInternalServerError, errors.New("something went wrong"))
+		return
+	}
+
+	responses.JSON(w, http.StatusOK, user)
 }

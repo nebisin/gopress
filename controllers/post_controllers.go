@@ -3,7 +3,6 @@ package controllers
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
 	"github.com/gorilla/mux"
 	"github.com/nebisin/gopress/models"
 	"github.com/nebisin/gopress/repository"
@@ -11,11 +10,12 @@ import (
 	"github.com/nebisin/gopress/utils/responses"
 	"gorm.io/gorm"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"strconv"
 )
 
-// This method create a post that send with body.
+// handlePostCreate method create a post that send with body.
 // Only authenticated users create a post.
 func (handler *Handler) handlePostCreate(w http.ResponseWriter, r *http.Request)  {
 	var postDTO models.PostDTO
@@ -48,7 +48,7 @@ func (handler *Handler) handlePostCreate(w http.ResponseWriter, r *http.Request)
 	responses.JSON(w, http.StatusCreated, post)
 }
 
-// This method get the post by given id.
+// handlePostGet method get the post by given id.
 // If post is published everybody can read it.
 // But post is not published only the author can access it.
 func (handler *Handler) handlePostGet(w http.ResponseWriter, r *http.Request)  {
@@ -74,7 +74,7 @@ func (handler *Handler) handlePostGet(w http.ResponseWriter, r *http.Request)  {
 			// Instead we send a generic error to the user
 			// and print the actual error to the console
 			responses.ERROR(w, http.StatusInternalServerError, errors.New("something went wrong"))
-			fmt.Println(err)
+			log.Println(err)
 		}
 		return
 	}
@@ -98,7 +98,7 @@ func (handler *Handler) handlePostGet(w http.ResponseWriter, r *http.Request)  {
 	responses.JSON(w, http.StatusOK, post)
 }
 
-// This method update the post by given id and body.
+// handlePostUpdate method update the post by given id and body.
 // It requires authentication and user must be the owner of the post.
 func (handler Handler) handlePostUpdate(w http.ResponseWriter, r *http.Request)  {
 	// We try to get the user id from auth token:
@@ -123,7 +123,7 @@ func (handler Handler) handlePostUpdate(w http.ResponseWriter, r *http.Request) 
 			responses.ERROR(w, http.StatusNotFound, errors.New("the post with id " + vars["id"] + " could not found"))
 		} else {
 			responses.ERROR(w, http.StatusInternalServerError, errors.New("something went wrong"))
-			fmt.Println(err)
+			log.Println(err)
 		}
 		return
 	}
@@ -160,7 +160,7 @@ func (handler Handler) handlePostUpdate(w http.ResponseWriter, r *http.Request) 
 	responses.JSON(w, http.StatusCreated, post)
 }
 
-// This method delete a post with it's id.
+// handlePostDelete method delete a post with it's id.
 // It requires authentication and user must be the owner of the post.
 func (handler *Handler) handlePostDelete(w http.ResponseWriter, r *http.Request)  {
 	vars := mux.Vars(r)
@@ -192,14 +192,14 @@ func (handler *Handler) handlePostDelete(w http.ResponseWriter, r *http.Request)
 
 	if 	err := db.DeleteById(uint(i)); err != nil{
 		responses.ERROR(w, http.StatusInternalServerError, errors.New("something went wrong"))
-		fmt.Println(err)
+		log.Println(err)
 		return
 	}
 
 	responses.JSON(w, http.StatusNoContent, "")
 }
 
-// This method find many posts within the given limit.
+// handlePostGetMany method find many posts within the given limit.
 // It only return published posts.
 func (handler Handler) handlePostGetMany(w http.ResponseWriter, r *http.Request)  {
 	keys := r.URL.Query()

@@ -13,7 +13,7 @@ func NewPostRepository(db *gorm.DB) *postRepository {
 	return &postRepository{db: db}
 }
 
-// This method takes post model and create that post
+// Save method takes post model and create that post
 // in the database. It returns error if exist any.
 func (r *postRepository) Save(p *models.Post) error {
 	if err := r.db.Create(&p).Error; err != nil {
@@ -22,7 +22,7 @@ func (r *postRepository) Save(p *models.Post) error {
 	return nil
 }
 
-// This method find one post by given id.
+// FindById method find one post by given id.
 func (r *postRepository) FindById(id uint) (models.Post, error) {
 	var post models.Post
 	if err := r.db.Preload("Author").First(&post, id).Error; err != nil {
@@ -32,7 +32,7 @@ func (r *postRepository) FindById(id uint) (models.Post, error) {
 	return post, nil
 }
 
-// This method update one post
+// UpdateById method update one post
 // It takes old post and new post and return error if any.
 func (r *postRepository) UpdateById(post *models.Post, newPost models.Post) error {
 	if err := r.db.Model(&post).Updates(newPost).Error; err != nil {
@@ -42,7 +42,7 @@ func (r *postRepository) UpdateById(post *models.Post, newPost models.Post) erro
 	return nil
 }
 
-// This method delete one post by given id.
+// DeleteById method delete one post by given id.
 func (r *postRepository) DeleteById(id uint) error {
 	if err := r.db.Delete(&models.Post{}, id).Error; err != nil {
 		return err
@@ -51,7 +51,7 @@ func (r *postRepository) DeleteById(id uint) error {
 	return nil
 }
 
-// This method gets all published posts in the limits
+// FindMany method gets all published posts in the limits
 // ordered by creation time.
 // If limit is not provided it's 10 by default.
 func (r *postRepository) FindMany(limit int) ([]models.Post, error) {
@@ -72,7 +72,7 @@ func (r *postRepository) FindMany(limit int) ([]models.Post, error) {
 	return posts, nil
 }
 
-// This method gets given users posts
+// FindPostsByUserId method gets given users posts
 // just published ones.
 func (r postRepository) FindPostsByUserId(uid uint) ([]models.Post, error) {
 	var posts []models.Post
@@ -89,7 +89,7 @@ func (r postRepository) FindPostsByUserId(uid uint) ([]models.Post, error) {
 	return posts, nil
 }
 
-// This method gets given users posts
+// FindMyPosts method gets given users posts
 // including both published and unpublished ones.
 func (r postRepository) FindMyPosts(uid uint) ([]models.Post, error) {
 	var posts []models.Post

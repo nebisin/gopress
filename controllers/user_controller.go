@@ -2,10 +2,10 @@ package controllers
 
 import (
 	"errors"
-	"fmt"
 	"github.com/gorilla/mux"
 	"github.com/nebisin/gopress/repository"
 	"github.com/nebisin/gopress/utils/responses"
+	"log"
 	"net/http"
 	"strconv"
 )
@@ -31,7 +31,7 @@ func (handler Handler) handleUserGet(w http.ResponseWriter, r *http.Request)  {
 	responses.JSON(w, http.StatusOK, post)
 }
 
-func (handler Handler) HandleUserPostsGet(w http.ResponseWriter, r *http.Request) {
+func (handler Handler) handleUserPostsGet(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id := vars["id"]
 
@@ -46,7 +46,7 @@ func (handler Handler) HandleUserPostsGet(w http.ResponseWriter, r *http.Request
 	posts, err := db.FindPostsByUserId(uint(i))
 	if err != nil {
 		responses.ERROR(w, http.StatusInternalServerError, errors.New("something went wrong"))
-		fmt.Println(err)
+		log.Println(err)
 		return
 	}
 

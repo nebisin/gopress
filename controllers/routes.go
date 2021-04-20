@@ -1,16 +1,17 @@
 package controllers
 
 import (
-	"fmt"
 	"github.com/gorilla/mux"
 	"github.com/nebisin/gopress/middlewares"
+	"log"
 )
 
 func (handler *Handler) initializeRoutes() {
-	fmt.Println("We are initializing the routes...")
+	log.Println("We are initializing the routes...")
 
 	handler.Router = mux.NewRouter()
 
+	handler.Router.Use(middlewares.SetLoggingMiddleware)
 	handler.Router.Use(middlewares.SetMiddlewareJSON)
 
 	handler.Router.HandleFunc("/posts/{id}", handler.handlePostGet).Methods("GET")
@@ -21,9 +22,10 @@ func (handler *Handler) initializeRoutes() {
 
 	handler.Router.HandleFunc("/register", handler.handleAuthRegister).Methods("POST")
 	handler.Router.HandleFunc("/login", handler.handleAuthLogin).Methods("POST")
-	handler.Router.HandleFunc("/me/posts", handler.HandleMyPosts).Methods("GET")
+	handler.Router.HandleFunc("/me", middlewares.SetMiddlewareAuthentication(handler.handleMe)).Methods("GET")
+	handler.Router.HandleFunc("/me/posts", middlewares.SetMiddlewareAuthentication(handler.handleMyPosts)).Methods("GET")
 
 	handler.Router.HandleFunc("/users/{id}", handler.handleUserGet).Methods("GET")
-	handler.Router.HandleFunc("/users/{id}/posts", handler.HandleUserPostsGet).Methods("GET")
+	handler.Router.HandleFunc("/users/{id}/posts", handler.handleUserPostsGet).Methods("GET")
 
 }

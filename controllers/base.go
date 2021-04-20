@@ -1,7 +1,6 @@
 package controllers
 
 import (
-	"fmt"
 	"github.com/gorilla/mux"
 	"github.com/joho/godotenv"
 	"github.com/nebisin/gopress/models"
@@ -23,7 +22,7 @@ func (handler *Handler) Initialize() {
 }
 
 func getEnv() {
-	fmt.Println("We are getting the env values...")
+	log.Println("We are getting the env values...")
 
 	if err := godotenv.Load(); err != nil {
 		log.Fatalf("Error getting env, not comming through %v", err)
@@ -31,7 +30,7 @@ func getEnv() {
 }
 
 func (handler *Handler) initializeDatabase() {
-	fmt.Println("We are initializing the database...")
+	log.Println("We are initializing the database...")
 
 	var err error
 
@@ -39,7 +38,7 @@ func (handler *Handler) initializeDatabase() {
 	if err != nil {
 		log.Fatalf("failed to connect database: %v", err)
 	} else {
-		fmt.Println("🌍 Database connection is successful")
+		log.Println("🌍 Database connection is successful")
 	}
 
 	// Migrate the schema
@@ -49,6 +48,6 @@ func (handler *Handler) initializeDatabase() {
 }
 
 func (handler *Handler) Run(addr string) {
-	fmt.Println("🚀 Listening to port 8080")
+	log.Println("🚀 Listening to port 8080")
 	log.Fatal(http.ListenAndServe(addr, handler.Router))
 }
