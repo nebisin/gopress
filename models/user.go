@@ -77,10 +77,6 @@ func (u User) Validate(action string) error {
 			return errors.New("you have to provide a valid email")
 		}
 
-		if err := validate.Var(u.Username, "required"); err != nil && u.Username != "" {
-			return errors.New("you have to provide a username")
-		}
-
 		if len(u.Password) < 8 && u.Password != "" {
 			return errors.New("password must be at least 8 characters")
 		}
