@@ -68,10 +68,10 @@ func (r userRepository) FindMany(limit int) ([]models.User, error) {
 	return user, nil
 }
 
-// FindByEmail method find a user by it's unique email.
-func (r userRepository) FindByEmail(email string) (models.User, error) {
+// FindByEmailOrUsername method find a user by it's unique email or username.
+func (r userRepository) FindByEmailOrUsername(email string, username string) (models.User, error) {
 	var user models.User
-	if err := r.db.First(&user, "email = ?", email).Error; err != nil {
+	if err := r.db.First(&user, "email = ? OR username = ?", email, username).Error; err != nil {
 		return models.User{}, err
 	}
 

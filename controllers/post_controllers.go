@@ -123,7 +123,7 @@ func (handler Handler) handlePostUpdate(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	if post.Author.ID != uint(uid) {
+	if post.Author.ID != uid {
 		responses.ERROR(w, http.StatusUnauthorized, errors.New("you can not update the post who belongs to someone else"))
 		return
 	}

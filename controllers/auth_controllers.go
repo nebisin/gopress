@@ -25,8 +25,12 @@ func (handler *Handler) handleAuthRegister(w http.ResponseWriter, r *http.Reques
 	db := repository.NewUserRepository(handler.DB)
 
 	if err := db.Save(&user); err != nil {
-		if strings.Contains(err.Error(), "email") {
+		if strings.Contains(err.Error(), "users.email") {
 			responses.ERROR(w, http.StatusBadRequest, errors.New("email is already taken"))
+			return
+		}
+		if strings.Contains(err.Error(), "users.username") {
+			responses.ERROR(w, http.StatusBadRequest, errors.New("username is already taken"))
 			return
 		}
 		responses.ERROR(w, http.StatusInternalServerError, err)
@@ -52,7 +56,7 @@ func (handler Handler) handleAuthLogin(w http.ResponseWriter, r *http.Request) {
 
 	db := repository.NewUserRepository(handler.DB)
 
-	user, err := db.FindByEmail(userPayload.Email)
+	user, err := db.FindByEmailOrUsername(userPayload.Email, userPayload.Username)
 	if err != nil {
 		responses.ERROR(w, http.StatusNotFound, errors.New("email or password is wrong"))
 		return
