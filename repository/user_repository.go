@@ -37,8 +37,12 @@ func (r userRepository) FindById(id uint) (models.User, error) {
 
 // UpdateById method update one user.
 // It takes old and new user and return error if any.
-func (r userRepository) UpdateById(value *models.User, newValue models.User) error {
-	if err := r.db.Model(&value).Updates(newValue).Error; err != nil {
+func (r userRepository) UpdateById(value *models.User, newValue *models.User) error {
+	if err := newValue.Validate("update"); err != nil {
+		return err
+	}
+
+	if err := r.db.Model(&value).Updates(&newValue).Error; err != nil {
 		return err
 	}
 

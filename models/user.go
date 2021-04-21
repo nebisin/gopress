@@ -51,8 +51,7 @@ func (u *User) BeforeSave(tx *gorm.DB) error {
 	if err != nil {
 		return err
 	}
-
-	u.Password = string(hashedPassword)
+	tx.Statement.SetColumn("password", hashedPassword)
 
 	return nil
 }
@@ -71,6 +70,14 @@ func (u User) Validate(action string) error {
 		}
 
 		if len(u.Password) < 8 {
+			return errors.New("password must be at least 8 characters")
+		}
+	case "update":
+		if err := validate.Var(u.Email, "required,email"); err != nil && u.Email != "" {
+			return errors.New("you have to provide a valid email")
+		}
+
+		if len(u.Password) < 8 && u.Password != "" {
 			return errors.New("password must be at least 8 characters")
 		}
 	}
